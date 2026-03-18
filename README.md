@@ -1,28 +1,39 @@
 # React MyContext for Stateless Data.
+
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=FFD62E)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![Zustand](https://img.shields.io/badge/Zustand-181717?style=for-the-badge&logo=react&logoColor=white)
 
-A quick-start guide to scaffolding a React-Vite project and using **React Context API**.
+A quick-start guide to scaffolding a React-Vite project and managing global state in React using **Zustand**.
 
 ---
 
 ## To run the app:
+
 ```bash
-cd react-context-refactored
+cd react-context-zustand
 yarn install
 yarn dev
 ```
 
 ## To build from scratch start a new Vite-React project:
+
 ```bash
 cd tutorials
 
-yarn create vite react-context-refactored --template react
-cd react-context-refactored
+yarn create vite react-context-zustand --template react
+cd react-context-zustand
+```
+
+## Install Zustand:
+
+```bash
+yarn add zustand
 ```
 
 ## Initiate version control:
+
 ```bash
 git init
 git add .
@@ -31,172 +42,68 @@ git branch -m master main
 ```
 
 ## Upload to GitHub:
+
 ```bash
 gh auth status
 gh repo create react-context-refactored --public --source=. --remote=origin --push
+git remote -v
 ```
 
-## Open in editor (optional):
-```bash
-code
-```
+### Create and export the zuatand global store with data:
 
-## Create static context consuming React component:
 ```bash
 cd src
-code MyComponent.jsx
-```
-
-### Static (stateless) data:
-- Static data is located in src/myData/staticData.js
-
-### Helper function for replicating context declaration and custom hook logic:
-```js
-// src / utils / createSafeContext.js
-    import { createContext, useContext }  from 'react';
-
-    export const createSafeContext = ( providerName, hookName ) => {
-        const Context = createContext(undefined);
-
-        const useSafeHook = () => {
-            const context = useContext(Context);
-            if (context === undefined) {
-                throw new Error(`${hookName} must be used withing ${providerName}`);
-            }
-
-            return context;
-        };
-
-        return [Context, useSafeHook];
-    };
-```
-
-### Context Declarations, Custom Hooks, and Providers:
-- Two context files StatefulContext.jsx and StatelessContext.jsx contain 
-all 3 context components each and are located in src/features/myFeature/context/
-
-```js 
-    // src / features / myFeature / context / StatelessContext.jsx
-
-    import { createSafeContext } from '../../../utils/createSafeContext';
-    import { staticData } from '../../../myData/staticData';
-
-    const [StatelessContext, useStatelessContext] = createSafeContext(
-        "StatelessProvider",
-        "useStatelessContext"
-    );
-
-    const StatelessProvider = ({ children }) => {
-        return (
-            <StatelessContext.Provider value={ staticData }>
-                {children}
-            </StatelessContext.Provider>
-        );
-    };
-
-    export { StatelessProvider, useStatelessContext };
+code useMyStore.js
 ```
 
 ```js
-    // src / features / myFeature / context / StatefulContext.jsx
+// src / useMyStore.js
 
-    import { useState, useMemo } from 'react';
-    import { createSafeContext } from '../../../utils/createSafeContext';
+import { create } from "zustand";
 
-    const [StatefulContext, useStatefulContext] = createSafeContext(
-        "StatefulProvider",
-        "useStatefulContext"
-    );
+export const useMyStore = create((set) => ({
+  data1: "No data",
+  data2: "No data",
+  data3: "No data",
 
-    const StatefulProvider = ({ children }) => {
-        const [dynamicData, setDynamicData] = useState("No data");
-        
-        // memoizing the object prevents consumers from re-rendering
-        // unless the data actually changes
-        const contextValue = useMemo(() => ({
-                dynamicData,
-                setDynamicData
-        }), [dynamicData]);
-
-        return (
-            <StatefulContext.Provider value={contextValue}>
-                { children }
-            </StatefulContext.Provider>
-        );
-    };
-
-    export { StatefulProvider, useStatefulContext };
+  setData: (key, value) => set({ [key]: value }),
+}));
 ```
 
-### Utility to gracefully include nesting providers:
+### Import, destructure, and use the data in a component:
 
 ```js
-// src / utils / composeProviders.jsx
+// src / MyComponent.jsx
 
-export const Compose = ({ providers, children }) => {
-    return providers.reduceRight((acc, Provider) => {
-        return <Provider>{acc}</Provider>
-    }, children);
-};
-```
-
-### Agreegating Providers:
-- AppProviders.jsx no longer needs to have long chain of nested providers.
-
-```js
-// src / providers / AppProviders.jsx
-
-import { Compose } from '../utils/composeProviders';
-import { StatelessProvider } from '../features/myFeature/context/StatelessContext';
-import { StatefulProvider } from '../features/myFeature/context/StatefulContext';
-
-const AppProviders = ({ children }) => (
-    <Compose providers={[StatelessProvider, StatefulProvider]}>
-        {children}
-    </Compose>
-);
-
-export default AppProviders;
-```
-
-### Wrapping consumers:
-- The wrapping takes place in main.jsx (index.jsx)
-
-```js
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <AppProviders>
-      <App />
-    </AppProviders>
-  </StrictMode>,
-)
-```
-
-### Consuming:
-- Consuming is streamlined using custom hook inside MyComponent.
-- useEffect prevents infinite loop.
-
-```js
-import { useEffect } from 'react';
-import { useStatelessContext } from '../features/myFeature/context/StatelessContext';
-import { useStatefulContext } from '../features/myFeature/context/StatefulContext';
+import { useMyStore } from "./useMyStore";
+import "./MyComponent.css";
 
 function MyComponent() {
-    const { staticData } = useStatelessContext();
-    const { dynamicData, setDynamicData } = useStatefulContext();
+  const data1 = useMyStore((state) => state.data1);
+  const data2 = useMyStore((state) => state.data2);
+  const data3 = useMyStore((state) => state.data3);
 
-    useEffect(() => {
-        setDynamicData("Stateful");
-    }, [setDynamicData]);
+  const setData = useMyStore((state) => state.setData);
 
-    return (
-        <div style={{ width: 400, height: 250, backgroundColor: 'skyblue' }}>
-            <h1>React Component</h1>
-            <p> { staticData }</p>
-            <p>{ dynamicData }</p>
+  const items = [
+    { key: "data1", value: data1, label: "Data-1" },
+    { key: "data2", value: data2, label: "Data-2" },
+    { key: "data3", value: data3, label: "Data-3" },
+  ];
+
+  return (
+    <div className="my-component">
+      <h2>My Component</h2>
+
+      {items.map((item) => (
+        <div className="my-component__row" key={item.key}>
+          <button onClick={() => setData(item.key, item.label)}>Update</button>
+          <p>{item.value}</p>
         </div>
-    );
-};
+      ))}
+    </div>
+  );
+}
 
 export default MyComponent;
 ```
