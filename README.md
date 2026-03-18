@@ -5,7 +5,7 @@
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
 ![Zustand](https://img.shields.io/badge/Zustand-004b6f?style=for-the-badge&logo=react&logoColor=white)
 
-A quick-start guide to scaffolding a React-Vite project and managing global state in React using **Zustand**.
+A quick-start guide to scaffolding a React-Vite project and managing global state with **Zustand**.
 
 ---
 
@@ -49,7 +49,7 @@ gh repo create react-context-refactored --public --source=. --remote=origin --pu
 git remote -v
 ```
 
-### Create and export the zuatand global store with data:
+### Create and export a Zustand global store with data:
 
 ```bash
 cd src
