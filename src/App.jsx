@@ -1,38 +1,32 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import MyComponent from "./MyComponent";
 import "./App.css";
+import { useAppStore } from "./appStore";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const setData = useAppStore((state) => state.setData);
+
+  const items = [
+    { key: "data1", value: "Data-1" },
+    { key: "data2", value: "Data-2" },
+    { key: "data3", value: "Data-3" },
+  ];
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
+    <section id="center">
+      {items.map((item) => {
+        const value = useAppStore((state) => state[item.key]);
 
-      <MyComponent />
-
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+        return (
+          <div key={item.key}>
+            <button
+              className="counter"
+              onClick={() => setData(item.key, item.value)}
+            >
+              {value}
+            </button>
+          </div>
+        );
+      })}
+    </section>
   );
 }
 
