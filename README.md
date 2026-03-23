@@ -53,11 +53,11 @@ git remote -v
 
 ```bash
 cd src
-code useMyStore.js
+code appStore.js
 ```
 
 ```js
-// src / useMyStore.js
+// src / appStore.js
 
 import { create } from "zustand";
 
@@ -66,44 +66,104 @@ export const useMyStore = create((set) => ({
   data2: "No data",
   data3: "No data",
 
-  setData: (key, value) => set({ [key]: value }),
+  setData: (key, value) => set((state) => ({ ...state, [key]: value })),
 }));
 ```
 
-### Import, destructure, and use the data in a component:
+### Import the global store:
 
 ```js
-// src / MyComponent.jsx
+// src / App.jsx
 
-import { useMyStore } from "./useMyStore";
-import "./MyComponent.css";
+import { useAppStore } from "./appStore";
+```
 
-function MyComponent() {
-  const data1 = useMyStore((state) => state.data1);
-  const data2 = useMyStore((state) => state.data2);
-  const data3 = useMyStore((state) => state.data3);
+### Import the updater:
 
-  const setData = useMyStore((state) => state.setData);
+```js
+// src / App.jsx
+
+const setData = useAppStore((state) => state.setData);
+```
+
+### Define new values:
+
+```js
+// src / App.jsx
+
+const items = [
+  { key: "data1", value: "Data-1" },
+  { key: "data2", value: "Data-2" },
+  { key: "data3", value: "Data-3" },
+];
+```
+
+### Render the elements using .map():
+
+```js
+// src / App.jsx
+
+return <section id="center">{items.map((item) => {})}</section>;
+```
+
+### For every element obtain the initial state:
+
+```js
+// src / App.jsx
+
+const value = useAppStore((state) => state[item.key]);
+```
+
+### Return each element (button) displaying the initial value, which updates if clicked on:
+
+```js
+// src / App.jsx
+
+return (
+  <div key={item.key}>
+    <button className="counter" onClick={() => setData(item.key, item.value)}>
+      {value}
+    </button>
+  </div>
+);
+```
+
+### The complete file:
+
+```js
+// src / App.jsx
+
+import "./App.css";
+import { useAppStore } from "./appStore";
+
+function App() {
+  const setData = useAppStore((state) => state.setData);
 
   const items = [
-    { key: "data1", value: data1, label: "Data-1" },
-    { key: "data2", value: data2, label: "Data-2" },
-    { key: "data3", value: data3, label: "Data-3" },
+    { key: "data1", value: "Data-1" },
+    { key: "data2", value: "Data-2" },
+    { key: "data3", value: "Data-3" },
   ];
 
   return (
-    <div className="my-component">
-      <h2>My Component</h2>
+    <section id="center">
+      {items.map((item) => {
+        const value = useAppStore((state) => state[item.key]);
 
-      {items.map((item) => (
-        <div className="my-component__row" key={item.key}>
-          <button onClick={() => setData(item.key, item.label)}>Update</button>
-          <p>{item.value}</p>
-        </div>
-      ))}
-    </div>
+        return (
+          <div key={item.key}>
+            <button
+              className="counter"
+              onClick={() => setData(item.key, item.value)}
+            >
+              {value}
+            </button>
+          </div>
+        );
+      })}
+    </section>
   );
 }
 
-export default MyComponent;
+export default App;
 ```
