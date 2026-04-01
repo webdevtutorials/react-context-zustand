@@ -5,11 +5,11 @@
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
 ![Zustand](https://img.shields.io/badge/Zustand-004b6f?style=for-the-badge&logo=react&logoColor=white)
 
-A quick-start guide to scaffolding a React-Vite project and managing global state with **Zustand**.
+## A quick-start guide to scaffolding a React-Vite project and managing global state with **Zustand**.
 
 ---
 
-## To run the app:
+### To run the app:
 
 ```bash
 cd react-context-zustand
@@ -17,7 +17,7 @@ yarn install
 yarn dev
 ```
 
-## To build from scratch start a new Vite-React project:
+### To build from scratch start a new Vite-React project:
 
 ```bash
 cd tutorials
@@ -26,13 +26,13 @@ yarn create vite react-context-zustand --template react
 cd react-context-zustand
 ```
 
-## Install Zustand:
+### Install Zustand:
 
 ```bash
 yarn add zustand
 ```
 
-## Initiate version control:
+### Initiate version control:
 
 ```bash
 git init
@@ -41,7 +41,7 @@ git commit -m "Initial commit"
 git branch -m master main
 ```
 
-## Upload to GitHub:
+### Upload to GitHub:
 
 ```bash
 gh auth status
@@ -53,20 +53,20 @@ git remote -v
 
 ```bash
 cd src
-code appStore.js
+code labelStore.js
 ```
 
 ```js
-// src / appStore.js
+// src / labelStore.js
 
 import { create } from "zustand";
 
-export const useMyStore = create((set) => ({
-  data1: "No data",
-  data2: "No data",
-  data3: "No data",
+export const useLabelStore = create((set) => ({
+  label1: "Label Me",
+  label2: "Label Me",
+  label3: "Label Me",
 
-  setData: (key, value) => set((state) => ({ ...state, [key]: value })),
+  updateLabel: (key, value) => set(() => ({ [key]: value })),
 }));
 ```
 
@@ -75,95 +75,44 @@ export const useMyStore = create((set) => ({
 ```js
 // src / App.jsx
 
-import { useAppStore } from "./appStore";
+import { useLabelStore } from "./labelStore";
 ```
 
-### Import the updater:
+### Create Button component:
 
 ```js
 // src / App.jsx
 
-const setData = useAppStore((state) => state.setData);
-```
+function Button({ id, newValue }) {
+  const value = useLabelStore((state) => state[id]);
+  const updateLabel = useLabelStore((state) => state.updateLabel);
 
-### Define new values:
-
-```js
-// src / App.jsx
-
-const items = [
-  { key: "data1", value: "Data-1" },
-  { key: "data2", value: "Data-2" },
-  { key: "data3", value: "Data-3" },
-];
-```
-
-### Render the elements using .map():
-
-```js
-// src / App.jsx
-
-return <section id="center">{items.map((item) => {})}</section>;
-```
-
-### For every element obtain the initial state:
-
-```js
-// src / App.jsx
-
-const value = useAppStore((state) => state[item.key]);
-```
-
-### Return each element (button) displaying the initial value, which updates if clicked on:
-
-```js
-// src / App.jsx
-
-return (
-  <div key={item.key}>
-    <button className="counter" onClick={() => setData(item.key, item.value)}>
+  return (
+    <button className="counter" onClick={() => updateLabel(id, newValue)}>
       {value}
     </button>
-  </div>
-);
+  );
+}
 ```
 
-### The complete file:
+### Create the main App component:
 
 ```js
 // src / App.jsx
 
-import "./App.css";
-import { useAppStore } from "./appStore";
-
-function App() {
-  const setData = useAppStore((state) => state.setData);
-
-  const items = [
-    { key: "data1", value: "Data-1" },
-    { key: "data2", value: "Data-2" },
-    { key: "data3", value: "Data-3" },
+export default function App() {
+  const labels = [
+    { key: "label1", value: "LABEL-1" },
+    { key: "label2", value: "LABEL-2" },
+    { key: "label3", value: "LABEL-3" },
   ];
 
   return (
     <section id="center">
-      {items.map((item) => {
-        const value = useAppStore((state) => state[item.key]);
-
-        return (
-          <div key={item.key}>
-            <button
-              className="counter"
-              onClick={() => setData(item.key, item.value)}
-            >
-              {value}
-            </button>
-          </div>
-        );
-      })}
+      {labels.map((label) => (
+        <Button key={label.key} id={label.key} newValue={label.value} />
+      ))}
     </section>
   );
 }
-
-export default App;
 ```

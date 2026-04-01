@@ -1,33 +1,29 @@
 import "./App.css";
-import { useAppStore } from "./appStore";
+import { useLabelStore } from "./labelStore";
 
-function App() {
-  const setData = useAppStore((state) => state.setData);
+function Button({ id, newValue }) {
+  const value = useLabelStore((state) => state[id]);
+  const updateLabel = useLabelStore((state) => state.updateLabel);
 
-  const items = [
-    { key: "data1", value: "Data-1" },
-    { key: "data2", value: "Data-2" },
-    { key: "data3", value: "Data-3" },
+  return (
+    <button className="counter" onClick={() => updateLabel(id, newValue)}>
+      {value}
+    </button>
+  );
+}
+
+export default function App() {
+  const labels = [
+    { key: "label1", value: "LABEL-1" },
+    { key: "label2", value: "LABEL-2" },
+    { key: "label3", value: "LABEL-3" },
   ];
 
   return (
     <section id="center">
-      {items.map((item) => {
-        const value = useAppStore((state) => state[item.key]);
-
-        return (
-          <div key={item.key}>
-            <button
-              className="counter"
-              onClick={() => setData(item.key, item.value)}
-            >
-              {value}
-            </button>
-          </div>
-        );
-      })}
+      {labels.map((label) => (
+        <Button key={label.key} id={label.key} newValue={label.value} />
+      ))}
     </section>
   );
 }
-
-export default App;
